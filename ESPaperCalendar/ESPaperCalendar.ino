@@ -15,7 +15,6 @@
 #include <GxEPD2_3C.h> // Include the GxEPD2 color extension
 #include <Wire.h>
 #include <SPI.h>
-
 #include <GxEPD2_EPD.h>
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
