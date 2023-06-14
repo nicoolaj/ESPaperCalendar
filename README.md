@@ -1,6 +1,9 @@
 # ESPaperCalendar
  iCal driven ESP32 + ePaper calendar
 
+# Used hardware
+- Wemos S2 mini
+- Waveshare 7.5 inch 3 color e-Paper with universal hat (https://www.waveshare.com/e-paper-driver-hat.htm)
 # Configuration
 - Copy Example.Credentials.h to Credentials.h
 - Open the Credentials.h file and fill in your wifi and calendar information.
