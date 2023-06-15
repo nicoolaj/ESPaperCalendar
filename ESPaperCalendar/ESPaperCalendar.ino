@@ -26,6 +26,10 @@
 #define CS_PIN 5
 #define BUSY_PIN 4
 
+
+bool ribbaFrame = true; /* make it fit in a Ikea Ribba frame*/
+bool keepAwake = false; /* usefull while testing */
+
 WiFiUDP ntpUDP;
 
 // NTP Server configuration
@@ -120,11 +124,13 @@ void setup() {
     }
   }
 
-  // Set deepsleep counter based on current time
-  setDeepSleepCounter();
+  if(!keepAwake) {
+    // Set deepsleep counter based on current time
+    setDeepSleepCounter();
 
-  // Sleep until 1 AM
-  startDeepSleep();
+    // Sleep until 1 AM
+    startDeepSleep();
+  }
 }
 
 void loop() {
@@ -569,30 +575,41 @@ void updateDisplay() {
 
   int currentCircleDay = getDayOfMonth(currentTimestamp);
   int currentDayOfMonth = getDayOfMonth(currentTimestamp);
+
   do
   {
     display.fillScreen(GxEPD_WHITE);
 
+    int leftOffset = 0;
+    int topOffset = 0;
+    if(ribbaFrame) {
+      leftOffset = 45;
+      topOffset = 15;
+    }
+
     // Current day
-    display.fillRect(20, 10, 280, 60, GxEPD_RED);
-    display.drawRect(20, 10, 280, 120, GxEPD_RED);
+    display.fillRect(20 + leftOffset, 10 + topOffset, 280, 60, GxEPD_RED);
+    display.drawRect(20 + leftOffset, 10 + topOffset, 280, 120, GxEPD_RED);
     display.setTextColor(GxEPD_WHITE);
     display.setFont(&FreeSansBold18pt7b);
-    drawCentreString(weekdagen[dayOfWeek],160,39);
+    drawCentreString(weekdagen[dayOfWeek],160+leftOffset,39 + topOffset);
 
     display.setTextColor(GxEPD_RED);
-    drawCentreString(String(currentDayOfMonth) + " " + maanden[currentMonth],160,97);
-    
+    drawCentreString(String(currentDayOfMonth) + " " + maanden[currentMonth],160 + leftOffset,97 + topOffset);
+
 
     // Vertical line between calendar and events
-    display.fillRect(340, 0, 2, 480, GxEPD_RED);
-    
+    if(ribbaFrame) {
+      display.fillRect(360, 0, 2, 480, GxEPD_RED);
+    } else {
+      display.fillRect(340, 0, 2, 480, GxEPD_RED);
+    }
     display.setTextColor(GxEPD_BLACK);
     display.setFont(&FreeSansBold9pt7b);
 
     // Weekdays on calendar
     for(int i=0;i<7;i++) {
-      drawCentreString(weekdagenKort[i],40+ i*40,170);
+      drawCentreString(weekdagenKort[i],leftOffset + 40 + i*40,170);
     }
   
     display.setTextColor(GxEPD_BLACK);
@@ -600,8 +617,8 @@ void updateDisplay() {
 
     // Draw circles for each day
     for (int i = 0; i < 29; i++) {
-        int x = 40 + ((i+dayOfWeek) % 7) * 40;
-        int y = 210 + ((i+dayOfWeek) / 7) * 40;
+        int x = leftOffset + 40 + ((i+dayOfWeek) % 7) * 40;
+        int y = topOffset + 210 + ((i+dayOfWeek) / 7) * 40;
 
 
         // Border color
@@ -657,27 +674,26 @@ void updateDisplay() {
     
 
     // Last update information
-    display.setCursor(400, 8*55 + 30);
-    display.print("Laatste update: " + formatEpochTime(currentTimestamp));       
+    // display.setCursor(400, 8*55 + 30);
+    // display.print("Laatste update: " + formatEpochTime(currentTimestamp));       
     
-
 
     // info bezetting bnb
     if(second_calendar) {
       display.setTextColor(GxEPD_BLACK);
-      display.setCursor(30, 420);
+      display.setCursor(leftOffset + 30, 420);
       display.setFont(&FreeSans9pt7b);
       if(hasExtraEvent(0)) {
         display.print("BnB is bezet vandaag");
         if(!hasExtraEvent(1)) {
-          display.setCursor(30, 445);
+          display.setCursor(leftOffset + 30, 445);
           display.setFont(&FreeSans9pt7b);;
           display.print("Gasten vertrekken morgen");
         }
       } else {
         display.print("BnB is vrij vandaag");
         if(hasExtraEvent(1)) {
-          display.setCursor(30, 445);
+          display.setCursor(leftOffset + 30, 445);
           display.setFont(&FreeSans9pt7b);
           display.setTextColor(GxEPD_RED);
           display.print("Gasten komen morgen aan");
