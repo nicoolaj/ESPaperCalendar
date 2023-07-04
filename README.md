@@ -1,5 +1,6 @@
 # ESPaperCalendar
  iCal driven ESP32 + ePaper calendar
+ Pictures and more instructions in Dutch can be found here: https://papamaakthetwel.be/nerdzone/kalender-met-e-paper-en-esp32/
 
 # Used hardware
 - Wemos S2 mini
