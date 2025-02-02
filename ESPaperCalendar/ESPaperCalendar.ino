@@ -1,6 +1,7 @@
 /**
  * Rename Example.Credentials.h to Credentials.h and update with your wifi and calendar information
  **/
+
 #include "Credentials.h"
 #include "Configuration.h"
 
@@ -24,9 +25,10 @@
 #endif
 
 #include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/FreeMono9pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
-#include <Fonts/FreeSansBold18pt7b.h>
+#if defined(SCREEN_SIZE_7_5)
+  #include <Fonts/FreeSansBold18pt7b.h>
+#endif
 
 // Display pins, change to match your coonfig/board if required
 #define RST_PIN 16
@@ -126,6 +128,53 @@ int currentDay;
 RTC_DATA_ATTR int wakeupCount = -1;
 esp_sleep_wakeup_cause_t wakeup_reason;
 
+struct AccentMapping {
+    unsigned short utf8Code;
+    char asciiChar;
+};
+
+AccentMapping accentMap[] = {
+    {0xC3A0, 'a'}, {0xC3A1, 'a'}, {0xC3A2, 'a'}, {0xC3A3, 'a'}, {0xC3A4, 'a'}, {0xC3A5, 'a'}, // à, á, â, ã, ä, å
+    {0xC3A7, 'c'}, // ç
+    {0xC3A8, 'e'}, {0xC3A9, 'e'}, {0xC3AA, 'e'}, {0xC3AB, 'e'}, // è, é, ê, ë
+    {0xC3AC, 'i'}, {0xC3AD, 'i'}, {0xC3AE, 'i'}, {0xC3AF, 'i'}, // ì, í, î, ï
+    {0xC3B2, 'o'}, {0xC3B3, 'o'}, {0xC3B4, 'o'}, {0xC3B6, 'o'}, // ò, ó, ô, ö
+    {0xC3B9, 'u'}, {0xC3BA, 'u'}, {0xC3BB, 'u'}, {0xC3BC, 'u'}, // ù, ú, û, ü
+    {0xC3B1, 'n'}, // ñ
+    {0xC3B5, 'y'}, // ý
+    {0xC4A0, 'a'}, {0xC4A1, 'a'}, {0xC4A2, 'a'}, {0xC4A3, 'a'}, // Ā, ā, Ą, ą
+    {0xC4B2, 'c'}, {0xC4B3, 'c'}, {0xC4B6, 'c'}, {0xC4B7, 'c'}, // Ć, ć, Č, č
+    {0xC490, 'd'}, {0xC491, 'd'}, // Đ, đ
+    {0xC498, 'e'}, {0xC499, 'e'}, {0xC49A, 'e'}, {0xC49B, 'e'}, {0xC49C, 'e'}, {0xC49D, 'e'}, // Ē, ē, Ė, ė, Ę, ę
+    {0xC4A8, 'i'}, {0xC4A9, 'i'}, {0xC4AA, 'i'}, {0xC4AB, 'i'}, {0xC4AC, 'i'}, {0xC4AD, 'i'}, // Ī, ī, Į, į, İ, ı
+    {0xC581, 'o'}, {0xC582, 'o'}, {0xC583, 'o'}, // Ő, ő, Ǫ, ǫ
+    {0xC5A0, 'r'}, {0xC5A1, 'r'}, // Ŕ, ŕ
+    {0xC590, 's'}, {0xC591, 's'}, {0xC592, 's'}, {0xC593, 's'}, // Ś, ś, Ş, ş
+    {0xC5A4, 't'}, {0xC5A5, 't'}, {0xC5A6, 't'}, {0xC5A7, 't'}, // Ť, ť, Ţ, ţ
+    {0xC5AA, 'u'}, {0xC5AB, 'u'}, {0xC5AC, 'u'}, {0xC5AD, 'u'}, {0xC5AE, 'u'}, {0xC5AF, 'u'}, // Ū, ū, Ů, ů, Ű, ű
+    {0xC5B2, 'z'}, {0xC5B3, 'z'}, {0xC5B4, 'z'}, {0xC5B5, 'z'}, // Ź, ź, Ż, ż
+};
+String stripAccents(String s) {
+    String result = "";
+    for (int i = 0; i < s.length(); i++) {
+        unsigned char c = s.charAt(i);
+
+        if (c < 128) { // ASCII standard
+            result += (char)c;
+        } else if (c < 2048) { // UTF-8 sur 2 octets
+            unsigned char c2 = s.charAt(++i);
+            unsigned short utf8Code = (c << 8) | c2; // Combine les deux octets en un short
+
+            for (const auto& mapping : accentMap) {
+                if (mapping.utf8Code == utf8Code) {
+                    result += mapping.asciiChar;
+                    break; // Important : sortir de la boucle une fois trouvé
+                }
+            }
+        } // ... (gestion des 3 et 4 octets si nécessaire)
+    }
+    return result;
+}
 
 /**
  * Everything happens in setup()
@@ -716,7 +765,7 @@ void updateDisplay() {
         }
         display.setCursor(400, i*55 + 60);
         display.setFont(&FreeSans9pt7b);
-        display.print(events[i].summary);
+        display.print(stripAccents(events[i].summary));
         if(events[i].isAllDay) {
           display.fillRect(390, i*55+25, 2, 40, GxEPD_BLACK);
         }
@@ -776,7 +825,7 @@ void updateDisplay() {
         display.setCursor(400, i*65 + 50);
         display.setFont(&FreeSans9pt7b);
         
-        display.print(events[i].summary);
+        display.print(stripAccents(events[i].summary));
         
         display.fillRect(15, i*65 + 100, 270, 2, GxEPD_RED);
       }
