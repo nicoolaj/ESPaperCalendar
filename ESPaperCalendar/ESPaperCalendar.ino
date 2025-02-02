@@ -769,7 +769,7 @@ void updateDisplay() {
 
         if(events[i].isAllDay) {
           display.print(formatEpochDate(events[i].startDate));
-          display.fillRect(190, i*65 + 70, 20, 10, GxEPD_BLACK);
+          //display.fillRect(190, i*65 + 70, 20, 10, GxEPD_BLACK);
         } else {
           display.print(formatEpochTime(events[i].startDate));
         }
@@ -786,7 +786,7 @@ void updateDisplay() {
       // display.setCursor(400, 8*55 + 30);
       // display.print("Laatste update: " + formatEpochTime(currentTimestamp));       
       
-      
+
       // info bezetting bnb
       if(second_calendar) {
         display.setTextColor(GxEPD_BLACK);
