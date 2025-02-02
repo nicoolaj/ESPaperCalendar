@@ -18,7 +18,8 @@
 ## Hardware Configuration
 
 ### Screen size and capabilities
-
+Choose between 7.5" and 4.2" e-paper screens 
+Also choose between Black&White (BW) or 3-Colors (3C) screens
 
 ### Pin layout
 #### Pin layout for Wemos S2 mini
